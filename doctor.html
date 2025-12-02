@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>닥터 모드 - Body Filler MasterLab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #050506;
+      --bg-elevated: #101014;
+      --accent: #F4C7B9;
+      --accent-soft: rgba(244, 199, 185, 0.12);
+      --accent-border: rgba(244, 199, 185, 0.45);
+      --text-main: #F9E6DF;
+      --text-sub: #B7A7A0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at top left, #24151a 0, #050506 55%);
+      color: var(--text-main);
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(244,199,185,0.18);
+      background: rgba(5,5,6,0.98);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .left-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .back-btn {
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    .logo-mini {
+      width: 60px;
+      height: 24px;
+    }
+
+    .header-title {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    main {
+      padding: 16px 16px 40px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: rgba(6,6,10,0.96);
+      border-radius: 16px;
+      border: 1px solid rgba(244,199,185,0.35);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(244,199,185,0.4);
+      background: rgba(8,8,12,0.95);
+      color: var(--text-main);
+      outline: none;
+      font-size: 14px;
+      letter-spacing: 0.3em;
+      text-align: center;
+    }
+
+    .btn-main {
+      width: 100%;
+      margin-top: 12px;
+      padding: 11px 0;
+      border-radius: 999px;
+      border: none;
+      background: var(--accent);
+      color: #111;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .small {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-top: 8px;
+    }
+
+    .case-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .case-item {
+      border-radius: 12px;
+      border: 1px solid rgba(244,199,185,0.25);
+      background: rgba(10,10,14,0.95);
+      padding: 10px 12px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .case-item.new {
+      border-color: #F97373;
+    }
+
+    .case-item.answered {
+      border-color: rgba(244,199,185,0.45);
+    }
+
+    .case-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
+    .case-part {
+      font-weight: 600;
+    }
+
+    .case-status {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(249,115,115,0.15);
+      color: #ff9292;
+    }
+
+    .case-status.answered {
+      background: rgba(114,227,173,0.12);
+      color: #7be3b4;
+    }
+
+    .case-preview {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+
+    .case-date {
+      font-size: 10px;
+      color: #7e726c;
+    }
+
+    .hidden { display: none; }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(1, minmax(0,1fr));
+      gap: 10px;
+    }
+
+    @media (min-width: 720px) {
+      .detail-grid {
+        grid-template-columns: 2fr 3fr;
+      }
+    }
+
+    .detail-label {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-bottom: 3px;
+    }
+
+    .detail-box {
+      background: rgba(6,6,10,0.95);
+      border-radius: 10px;
+      border: 1px solid rgba(244,199,185,0.35);
+      padding: 10px;
+      font-size: 12px;
+      color: var(--text-main);
+    }
+
+    .photo-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .photo-wrap img,
+    .photo-wrap video {
+      max-width: 140px;
+      border-radius: 8px;
+      border: 1px solid rgba(244,199,185,0.35);
+    }
+
+    .message-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .msg {
+      padding: 8px 9px;
+      border-radius: 10px;
+      font-size: 11px;
+      line-height: 1.4;
+      max-width: 100%;
+      white-space: pre-wrap;
+    }
+
+    .msg.user {
+      background: rgba(17,24,39,0.95);
+      align-self: flex-start;
+      border: 1px solid rgba(148,163,184,0.8);
+    }
+
+    .msg.doctor {
+      background: rgba(244,199,185,0.98);
+      color: #111;
+      align-self: flex-end;
+    }
+
+    .reply-box textarea {
+      width: 100%;
+      min-height: 80px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(244,199,185,0.4);
+      background: rgba(7,7,10,0.95);
+      color: var(--text-main);
+      font-size: 12px;
+      resize: vertical;
+      outline: none;
+    }
+
+    .reply-btn {
+      margin-top: 8px;
+      width: 100%;
+      padding: 9px 0;
+      border-radius: 999px;
+      border: none;
+      background: var(--accent);
+      color: #111;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      border: 1px solid rgba(244,199,185,0.5);
+      color: var(--text-sub);
+      margin-top: 4px;
+    }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="left-header">
+    <div class="back-btn" onclick="goHome()">←</div>
+    <svg class="logo-mini" viewBox="0 0 200 40">
+      <path d="M8 30 Q40 5 80 16 T150 14 Q178 8 192 28"
+            stroke="#F4C7B9" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </svg>
+    <div class="header-title">닥터 모드 · Body Filler MasterLab</div>
+  </div>
+</header>
+
+<main>
+  <!-- 로그인 카드 -->
+  <section id="loginSection" class="card">
+    <div style="font-size:13px;font-weight:600;margin-bottom:8px;">PIN 입력</div>
+    <div style="font-size:11px;color:var(--text-sub);margin-bottom:10px;">
+      닥터K 전용 뷰입니다. PIN 6자리를 입력하면 오늘 접수된 케이스들을 차트처럼 볼 수 있습니다.
+    </div>
+    <input id="pinInput" maxlength="6" class="login-input" placeholder="••••••" />
+    <button class="btn-main" onclick="login()">닥터 모드 들어가기</button>
+    <div class="small">※ PIN은 브라우저에 저장되지 않습니다.</div>
+  </section>
+
+  <!-- 대시보드 -->
+  <section id="dashboardSection" class="hidden">
+    <div class="card">
+      <div style="font-size:13px;font-weight:600;margin-bottom:6px;">접수된 케이스</div>
+      <div id="caseCount" class="small"></div>
+      <div class="case-list" id="caseList"></div>
+    </div>
+
+    <div id="detailCard" class="card hidden">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px;">
+        선택된 케이스 상세
+      </div>
+      <div id="detailContent"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+  const SUPABASE_URL = "https://mljhxswtlahjqexlxlwh.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_zhjzgeDAxcImr4july-7Pw_2h2DQAc3";
+  const { createClient } = supabase;
+  const client = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  const DOCTOR_PIN = "112955";
+
+  function goHome() {
+    window.location.href = "index.html";
+  }
+
+  function login() {
+    const input = document.getElementById("pinInput").value.trim();
+    if (input === DOCTOR_PIN) {
+      document.getElementById("loginSection").classList.add("hidden");
+      document.getElementById("dashboardSection").classList.remove("hidden");
+      loadCases();
+    } else {
+      alert("PIN이 올바르지 않습니다.");
+    }
+  }
+
+  async function loadCases() {
+    const { data, error } = await client
+      .from("cases")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      alert("케이스 목록을 불러오는 중 오류가 발생했습니다.");
+      return;
+    }
+
+    const caseListEl = document.getElementById("caseList");
+    caseListEl.innerHTML = "";
+
+    document.getElementById("caseCount").textContent =
+      data.length ? `${data.length}건 접수됨` : "아직 접수된 케이스가 없습니다.";
+
+    data.forEach(c => {
+      const div = document.createElement("div");
+      div.className = "case-item " + (c.status === "answered" ? "answered" : "new");
+      div.addEventListener("click", () => openCase(c.id));
+
+      const created = c.created_at ? new Date(c.created_at) : null;
+      const dateStr = created
+        ? created.toLocaleString("ko-KR", { month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" })
+        : "";
+
+      div.innerHTML = `
+        <div class="case-head">
+          <div class="case-part">${c.part || "부위 미입력"}</div>
+          <div class="case-status ${c.status === "answered" ? "answered" : ""}">
+            ${c.status === "answered" ? "답변 완료" : "새 상담"}
+          </div>
+        </div>
+        <div class="case-preview">${(c.concern || "").slice(0,60) || "—"}</div>
+        <div class="case-date">${dateStr}</div>
+      `;
+
+      caseListEl.appendChild(div);
+    });
+  }
+
+  async function openCase(caseId) {
+    const { data: c, error } = await client
+      .from("cases")
+      .select("*")
+      .eq("id", caseId)
+      .single();
+
+    if (error) {
+      console.error(error);
+      alert("케이스 정보를 불러오는 중 오류가 발생했습니다.");
+      return;
+    }
+
+    const { data: photos } = await client
+      .from("photos")
+      .select("*")
+      .eq("case_id", caseId);
+
+    const { data: messages } = await client
+      .from("messages")
+      .select("*")
+      .eq("case_id", caseId)
+      .order("created_at", { ascending: true });
+
+    const detail = document.getElementById("detailContent");
+    const detailCard = document.getElementById("detailCard");
+    detailCard.classList.remove("hidden");
+
+    const created = c.created_at ? new Date(c.created_at) : null;
+    const dateStr = created
+      ? created.toLocaleString("ko-KR", { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" })
+      : "";
+
+    const photosHtml = (photos || []).map(p => {
+      const url = p.url;
+      const lower = url.toLowerCase();
+      if (lower.endsWith(".mp4") || lower.endsWith(".mov") || lower.endsWith(".webm")) {
+        return `<video src="${url}" controls></video>`;
+      }
+      return `<img src="${url}" alt="photo" />`;
+    }).join("");
+
+    const messagesHtml = (messages || []).map(m => `
+      <div class="msg ${m.from === "doctor" ? "doctor" : "user"}">
+        ${m.text || ""}
+      </div>
+    `).join("");
+
+    detail.innerHTML = `
+      <div class="detail-grid">
+        <div>
+          <div class="detail-label">부위</div>
+          <div class="detail-box">
+            ${c.part || "—"}
+            <div class="pill">${c.changeLevel || "변화 레벨 미입력"}</div>
+          </div>
+
+          <div class="detail-label" style="margin-top:8px;">고민</div>
+          <div class="detail-box">${c.concern || "—"}</div>
+
+          <div class="detail-label" style="margin-top:8px;">원하는 이미지</div>
+          <div class="detail-box">${c.desired || "—"}</div>
+
+          <div class="detail-label" style="margin-top:8px;">시술 · 수술 과거력</div>
+          <div class="detail-box">${c.history || "—"}</div>
+
+          <div class="detail-label" style="margin-top:8px;">접수 일시</div>
+          <div class="detail-box">${dateStr || "—"}</div>
+        </div>
+
+        <div>
+          <div class="detail-label">사진 / 영상</div>
+          <div class="detail-box">
+            <div class="photo-wrap">
+              ${photosHtml || "<span style='font-size:11px;color:var(--text-sub);'>첨부된 파일이 없습니다.</span>"}
+            </div>
+          </div>
+
+          <div class="detail-label" style="margin-top:8px;">대화 내역</div>
+          <div class="detail-box" style="padding:8px 10px;">
+            <div class="message-list">
+              ${messagesHtml || "<span style='font-size:11px;color:var(--text-sub);'>아직 메시지가 없습니다.</span>"}
+            </div>
+          </div>
+
+          <div class="detail-label" style="margin-top:8px;">닥터 답변 작성</div>
+          <div class="detail-box reply-box">
+            <textarea id="replyInput" placeholder="필러로 가능한 범위, 예상 볼륨 존, 주의점, 단계별 전략 등을 적어주세요."></textarea>
+            <button class="reply-btn" onclick="sendReply('${caseId}')">답변 보내기 & 상태 완료 처리</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  async function sendReply(caseId) {
+    const text = document.getElementById("replyInput").value.trim();
+    if (!text) {
+      alert("답변 내용을 입력해주세요.");
+      return;
+    }
+
+    const { error: msgErr } = await client.from("messages").insert({
+      case_id: caseId,
+      from: "doctor",
+      text
+    });
+
+    if (msgErr) {
+      console.error(msgErr);
+      alert("메시지 저장 중 오류가 발생했습니다.");
+      return;
+    }
+
+    const { error: updErr } = await client
+      .from("cases")
+      .update({ status: "answered" })
+      .eq("id", caseId);
+
+    if (updErr) {
+      console.error(updErr);
+      alert("케이스 상태 업데이트 중 오류가 발생했습니다.");
+      return;
+    }
+
+    alert("답변이 저장되었습니다.");
+    loadCases();
+    openCase(caseId);
+  }
+</script>
+</body>
+</html>
