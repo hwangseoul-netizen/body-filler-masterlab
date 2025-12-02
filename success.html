@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>상담 접수 완료 - Body Filler MasterLab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle at top left, #24151a 0, #050506 55%);
+      color: #F9E6DF;
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .box {
+      text-align: center;
+      padding: 26px 24px;
+      border-radius: 18px;
+      background: rgba(10,10,12,0.94);
+      border: 1px solid rgba(244,199,185,0.4);
+      max-width: 360px;
+      width: 90%;
+    }
+
+    h1 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    p {
+      font-size: 13px;
+      color: #B7A7A0;
+      margin-bottom: 18px;
+      line-height: 1.5;
+    }
+
+    .pin {
+      font-size: 11px;
+      color: #8e7d76;
+      margin-bottom: 18px;
+    }
+
+    button {
+      width: 100%;
+      padding: 13px 0;
+      border-radius: 999px;
+      border: none;
+      background: #F4C7B9;
+      color: #111;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 8px;
+    }
+
+    .sub-link {
+      font-size: 11px;
+      color: #B7A7A0;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h1>상담 접수 완료되었습니다.</h1>
+  <p>닥터K가 순서대로 케이스를 검토한 뒤,<br/>가능한 범위 · 볼륨 방향 · 주의해야 할 점들을 정리해서 답변 드립니다.</p>
+  <div class="pin">※ 닥터 전용 PIN : <b>112955</b> (외부 공유 금지)</div>
+  <button onclick="location.href='index.html'">홈으로 돌아가기</button>
+  <div class="sub-link" onclick="location.href='doctor.html'">닥터 모드로 바로 이동</div>
+</div>
+
+</body>
+</html>
