@@ -333,8 +333,22 @@
     window.location.href = "index.html";
   }
 
+  function normalizePin(raw) {
+    // 숫자만 추출해서 돌려줌 (공백, 특수문자, 전각문자 등 제거)
+    return (raw || "")
+      .replace(/[^\d]/g, "")   // 숫자만 남기기
+      .slice(0, 6);            // 6자리까지만
+  }
+
   function login() {
-    const input = document.getElementById("pinInput").value.trim();
+    const raw = document.getElementById("pinInput").value;
+    const input = normalizePin(raw);
+
+    if (input.length !== 6) {
+      alert("6자리 PIN을 정확히 입력해줘.");
+      return;
+    }
+
     if (input === DOCTOR_PIN) {
       document.getElementById("loginSection").classList.add("hidden");
       document.getElementById("dashboardSection").classList.remove("hidden");
@@ -481,6 +495,43 @@
       </div>
     `;
   }
+
+  async function sendReply(caseId) {
+    const text = document.getElementById("replyInput").value.trim();
+    if (!text) {
+      alert("답변 내용을 입력해주세요.");
+      return;
+    }
+
+    const { error: msgErr } = await client.from("messages").insert({
+      case_id: caseId,
+      from: "doctor",
+      text
+    });
+
+    if (msgErr) {
+      console.error(msgErr);
+      alert("메시지 저장 중 오류가 발생했습니다.");
+      return;
+    }
+
+    const { error: updErr } = await client
+      .from("cases")
+      .update({ status: "answered" })
+      .eq("id", caseId);
+
+    if (updErr) {
+      console.error(updErr);
+      alert("케이스 상태 업데이트 중 오류가 발생했습니다.");
+      return;
+    }
+
+    alert("답변이 저장되었습니다.");
+    loadCases();
+    openCase(caseId);
+  }
+</script>
+
 
   async function sendReply(caseId) {
     const text = document.getElementById("replyInput").value.trim();
